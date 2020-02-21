@@ -1,0 +1,46 @@
+---
+- hosts: all
+  gather_facts: false
+
+  roles:
+    - win_netroute
+
+  tasks:
+
+    - name: Add a network static route
+      win_netroute:
+        interface_alias: eth1
+        destination: 192.168.2.10/32
+        gateway: 192.168.1.1
+        metric: 1
+        state: present
+
+    - name: Add a network static route by using the gateway of the network interface
+      win_netroute:
+        interface_alias: eth1
+        destination: 192.168.2.10/32
+        metric: 1
+        state: present
+
+    - name: Add a network static route by using 0.0.0.0 as gateway
+      win_netroute:
+        destination: 192.168.2.10/32
+        metric: 1
+        state: present
+
+    - name: Remove a network static route by using the gateway
+      win_netroute:
+        destination: 192.168.2.10/32
+        state: absent
+        gateway: 192.168.1.1
+
+    - name: Remove a network static route by using the interface alias
+      win_netroute:
+        interface_alias: eth1
+        destination: 192.168.2.10/32
+        state: absent
+
+    - name: Remove a network static route
+      win_netroute:
+        destination: 192.168.2.10/32
+        state: absent

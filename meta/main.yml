@@ -1,0 +1,21 @@
+galaxy_info:
+  role_name: win_netroute
+  author: Stéphane Bilqué
+  description: Adds or removes an IP route in the IP routing table
+  company: Informatique CDC
+  license: GPLv3
+
+  min_ansible_version: 2.6
+
+  github_branch: https://github.com/informatique-cdc/ansible-role-win_netroute
+
+  platforms:
+   - name: Windows
+     versions:
+      - 2016
+
+  galaxy_tags:
+    - windows
+    - route
+
+dependencies: []

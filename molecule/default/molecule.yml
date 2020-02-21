@@ -1,0 +1,49 @@
+dependency:
+  name: galaxy
+driver:
+  name: docker
+lint:
+  name: yamllint
+platforms:
+  - name: servercore
+    hostname: {{ servername }}
+    image: microsoft/windowsservercore:latest
+    docker_host: tcp://<windows docker host>:2375
+    command: ping -t localhost
+    networks:
+      - name: {{ VLAN }}
+        ipv4_address: {{ ip }}
+    purge_networks: yes
+    groups:
+      - {{ group }}
+provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      fact_caching: jsonfile
+      fact_caching_connection: /tmp
+      gathering: explicit
+      force_color: 1
+      stdout_callback: yaml
+      vault_password_file: {{ password_file }}
+  lint:
+    name: ansible-lint
+  options:
+    flush-cache: True
+scenario:
+  name: default
+  test_sequence:
+    - lint
+    - destroy
+    - dependency
+    - syntax
+    - create
+    - prepare
+    - converge
+    - idempotence
+    - side_effect
+    - destroy
+verifier:
+  name: testinfra
+  lint:
+    name: flake8
