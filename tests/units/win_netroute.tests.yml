@@ -6,7 +6,6 @@
     - win_netroute
 
   tasks:
-
     - name: Add a network static route
       win_netroute:
         interface_alias: eth1

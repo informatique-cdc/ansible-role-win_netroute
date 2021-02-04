@@ -66,11 +66,11 @@ Function New-ExitJson($obj) {
 }
 
 function Invoke-TestSetup {
-    $ModuleUtils = Get-RequiredModules -Path $ansibleModulePath 
+    $ModuleUtils = Get-RequiredModules -Path $ansibleModulePath
     $ModuleUtils | Get-AnsibleModuleUtils
     If (Test-Path Alias:Exit-Json) { Remove-Item Alias:Exit-Json }
     Set-Alias -Name Exit-Json -Value New-ExitJson -Scope Global
-}    
+}
 
 function Invoke-TestCleanup {
     $ModuleUtils = Get-RequiredModules -Path $ansibleModulePath
@@ -108,13 +108,13 @@ try {
             },
             @{
                 IPAddress    = $null
-                PrefixLength = $null 
+                PrefixLength = $null
             })
         IPConfiguration = @{
             IPv4DefaultGateway = @{
-                NextHop = '192.168.1.129'   
+                NextHop = '192.168.1.129'
             }
-        }    
+        }
     }
 
     $testRoute = @{
@@ -129,10 +129,10 @@ try {
         gateway = '0.0.0.0'
         metric  = 1
     }
-    
+
     $mockRoute = @{
         InterfaceAlias    = $mockNetAdapter.Name
-        DestinationPrefix = $testRoute.destination 
+        DestinationPrefix = $testRoute.destination
         NextHop           = $testRoute.gateway
         RouteMetric       = $testRoute.metric
     }
@@ -175,8 +175,8 @@ try {
 
     Describe 'win_netroute' -Tag 'Set' {
         Context 'Route does not exist but should' {
-            Mock -CommandName Find-NetRoute { 
-                return [pscustomobject]@{ InterfaceAlias = $testRoute.interface_alias } 
+            Mock -CommandName Find-NetRoute {
+                return [pscustomobject]@{ InterfaceAlias = $testRoute.interface_alias }
             }
             Mock -CommandName Remove-NetRoute
             Mock -CommandName New-NetRoute
@@ -187,10 +187,10 @@ try {
 
             It 'new route with destination only' {
 
-                Mock -CommandName Find-NetRoute { 
-                    return [pscustomobject]@{ InterfaceAlias = 'Ethernet3' } 
+                Mock -CommandName Find-NetRoute {
+                    return [pscustomobject]@{ InterfaceAlias = 'Ethernet3' }
                 }
-                
+
                 $testRouteNew = @{
                     destination = $testRoute.destination
                 }
@@ -202,11 +202,11 @@ try {
                 $script:result.interface_alias | Should -Be 'Ethernet3'
                 $script:result.destination | Should -Be $testRouteNew.destination
                 $script:result.gateway | Should -Be $defaultValues.gateway
-                $script:result.metric | Should -Be $defaultValues.metric               
+                $script:result.metric | Should -Be $defaultValues.metric
             }
 
-            Mock -CommandName Find-NetRoute { 
-                return [pscustomobject]@{ InterfaceAlias = $testRoute.interface_alias } 
+            Mock -CommandName Find-NetRoute {
+                return [pscustomobject]@{ InterfaceAlias = $testRoute.interface_alias }
             }
 
             It 'new route with destination and gateway' {
@@ -223,11 +223,11 @@ try {
                 $script:result.interface_alias | Should -Be $testRoute.interface_alias
                 $script:result.destination | Should -Be $testRouteNew.destination
                 $script:result.gateway | Should -Be $testRouteNew.gateway
-                $script:result.metric | Should -Be $defaultValues.metric               
+                $script:result.metric | Should -Be $defaultValues.metric
             }
 
             It 'new route with destination, gateway and metric' {
-                
+
                 $testRouteNew = @{
                     destination = $testRoute.destination
                     gateway     = $testRoute.gateway
@@ -240,7 +240,7 @@ try {
                 $script:result.state | Should -Be 'Present'
                 $script:result.destination | Should -Be $testRouteNew.destination
                 $script:result.gateway | Should -Be $testRouteNew.gateway
-                $script:result.metric | Should -Be $testRouteNew.metric               
+                $script:result.metric | Should -Be $testRouteNew.metric
             }
 
             It 'new route with destination, gateway, metric and interface_alias' {
@@ -257,7 +257,7 @@ try {
                 $script:result.interface_alias | Should -Be $testRouteNew.interface_alias
                 $script:result.destination | Should -Be $testRouteNew.destination
                 $script:result.gateway | Should -Be $testRouteNew.gateway
-                $script:result.metric | Should -Be $testRouteNew.metric                
+                $script:result.metric | Should -Be $testRouteNew.metric
             }
 
             It 'new route with destination and interface_alias. interface have gateway' {
@@ -272,16 +272,16 @@ try {
                 $script:result.interface_alias | Should -Be $testRouteNew.interface_alias
                 $script:result.destination | Should -Be $testRouteNew.destination
                 $script:result.gateway | Should -Be $mockNetAdapter.IPConfiguration.IPv4DefaultGateway.NextHop
-                $script:result.metric | Should -Be $defaultValues.metric              
+                $script:result.metric | Should -Be $defaultValues.metric
             }
 
             It 'new route with destination and interface_alias. interface have no gateway' {
-                
-                Mock -CommandName Get-NetIPConfiguration { 
+
+                Mock -CommandName Get-NetIPConfiguration {
                     return [PSCustomObject] @{
                         IPv4DefaultGateway = @{
-                            NextHop = $null   
-                        }    
+                            NextHop = $null
+                        }
                     } }
 
                 $testRouteNew = @{
@@ -295,7 +295,7 @@ try {
                 $script:result.interface_alias | Should -Be $testRouteNew.interface_alias
                 $script:result.destination | Should -Be $testRouteNew.destination
                 $script:result.gateway | Should -Be $mockNetAdapter.IPConfiguration.IPv4DefaultGateway.NextHop
-                $script:result.metric | Should -Be $defaultValues.metric              
+                $script:result.metric | Should -Be $defaultValues.metric
             }
         }
 
@@ -315,7 +315,7 @@ try {
 
             It 'interface_alias should be updated' {
 
-                Mock -CommandName Get-NetRoute -MockWith { 
+                Mock -CommandName Get-NetRoute -MockWith {
                     @{
                         InterfaceAlias    = "Ethernet2"
                         DestinationPrefix = $testRoute.destination
@@ -330,12 +330,12 @@ try {
                 $script:result.interface_alias | Should -Be $testRouteNew.interface_alias
                 $script:result.destination | Should -Be $testRouteNew.destination
                 $script:result.gateway | Should -Be $testRouteNew.gateway
-                $script:result.metric | Should -Be $testRouteNew.metric                
+                $script:result.metric | Should -Be $testRouteNew.metric
             }
 
             It 'metric should be updated' {
 
-                Mock -CommandName Get-NetRoute -MockWith { 
+                Mock -CommandName Get-NetRoute -MockWith {
                     @{
                         InterfaceAlias    = $testRoute.interface_alias
                         DestinationPrefix = $testRoute.destination
@@ -350,12 +350,12 @@ try {
                 $script:result.interface_alias | Should -Be $testRouteNew.interface_alias
                 $script:result.destination | Should -Be $testRouteNew.destination
                 $script:result.gateway | Should -Be $testRouteNew.gateway
-                $script:result.metric | Should -Be $testRouteNew.metric                
+                $script:result.metric | Should -Be $testRouteNew.metric
             }
 
             It 'gateway should be updated' {
 
-                Mock -CommandName Get-NetRoute -MockWith { 
+                Mock -CommandName Get-NetRoute -MockWith {
                     @{
                         InterfaceAlias    = $testRoute.interface_alias
                         DestinationPrefix = $testRoute.destination
@@ -370,7 +370,7 @@ try {
                 $script:result.interface_alias | Should -Be $testRouteNew.interface_alias
                 $script:result.destination | Should -Be $testRouteNew.destination
                 $script:result.gateway | Should -Be $testRouteNew.gateway
-                $script:result.metric | Should -Be $testRouteNew.metric                
+                $script:result.metric | Should -Be $testRouteNew.metric
             }
 
         }

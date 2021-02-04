@@ -1,1 +1,2 @@
-/tests/units/Ansible.ModuleUtils.Legacy.psm1
+/.vscode
+Ansible.*.psm1
