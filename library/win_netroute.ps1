@@ -22,13 +22,13 @@ $result = @{
   "changed" = $false
   "output"  = ""
 }
-function toBinary ($dottedDecimal) { 
-  $dottedDecimal.split(".") | Foreach-object { $binary = $binary + $([convert]::toString($_, 2).padleft(8, "0")) } 
-  return $binary 
-} 
-function toDottedDecimal ($binary) { 
-  do { $dottedDecimal += "." + [string]$([convert]::toInt32($binary.substring($i, 8), 2)); $i += 8 } while ($i -le 24) 
-  return $dottedDecimal.substring(1) 
+function toBinary ($dottedDecimal) {
+  $dottedDecimal.split(".") | Foreach-object { $binary = $binary + $([convert]::toString($_, 2).padleft(8, "0")) }
+  return $binary
+}
+function toDottedDecimal ($binary) {
+  do { $dottedDecimal += "." + [string]$([convert]::toInt32($binary.substring($i, 8), 2)); $i += 8 } while ($i -le 24)
+  return $dottedDecimal.substring(1)
 }
 
 function Get-DefaultGateway {
@@ -42,7 +42,7 @@ function Get-DefaultGateway {
   $DefaultGateway = $IpConfiguration.IPv4DefaultGateway.NextHop
 
   if ($DefaultGateway) {
-    return $DefaultGateway 
+    return $DefaultGateway
   }
 
   $ipaddresses = Get-NetIPAddress -InterfaceAlias $InterfaceAlias -AddressFamily IPv4
@@ -56,8 +56,8 @@ function Get-DefaultGateway {
     [math]::Truncate([convert]::ToInt64(('1' * $prefix + '0' * (32 - $prefix)), 2) % 256)
   )
 
-  $ipAddressBinary = toBinary -dottedDecimal $IPAddress 
-  $subnetMaskBinary = toBinary -dottedDecimal $subnetMask 
+  $ipAddressBinary = toBinary -dottedDecimal $IPAddress
+  $subnetMaskBinary = toBinary -dottedDecimal $subnetMask
   $netBits = $subnetMaskBinary.indexOf("0")
   $DefaultGateway = toDottedDecimal -binary $($ipAddressBinary.substring(0, $netBits).padright(31, "0") + "1")
   return $DefaultGateway
@@ -184,7 +184,7 @@ Function Set-Route {
     [bool]$CheckMode = $false,
     [Parameter(Mandatory = $true)]
     [ValidateSet('present', 'absent')]
-    [string]$state = 'present'  
+    [string]$state = 'present'
   )
 
   # Remove any parameters that can't be splatted.
@@ -226,7 +226,7 @@ Function Set-Route {
       $result.output = "Route updated"
     }
     else {
-  
+
       try {
 
         # Find Interface Alias
@@ -234,10 +234,10 @@ Function Set-Route {
           $InterfaceAlias = Find-NetRoute -RemoteIPAddress $NextHop | Select-Object -First 1 -ExpandProperty InterfaceAlias
           $PSBoundParameters.Add('InterfaceAlias', $InterfaceAlias)
         }
- 
+
         # The Route does not exit - create it
         New-NetRoute @PSBoundParameters -ErrorAction Stop -WhatIf:$CheckMode | Out-Null
-  
+
         $result.interface_alias = $InterfaceAlias
         $result.metric = $RouteMetric
         $result.changed = $true
